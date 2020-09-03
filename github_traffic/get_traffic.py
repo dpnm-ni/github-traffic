@@ -72,33 +72,33 @@ def save_month(date, dataname, dirname, data):
 def query(url):
     token = config["github"]["token"]
     url = os.path.join("https://api.github.com/", url)
-    r = requests.get(url, params={"access_token": token})
+    r = requests.get(url, headers={"Accept": "application/vnd.github.v3+json"}, params={"access_token": token})
     r.raise_for_status()
     return r.json()
 
 
-def referrers():
+def referrers(repository):
     log.info("Referrers")
-    repository = config["github"]["repository"]
-    return query("repos/{}/traffic/popular/referrers".format(repository))
+    owner = config["github"]["owner"]
+    return query("repos/{}/{}/traffic/popular/referrers".format(owner, repository))
 
 
-def paths():
+def paths(repository):
     log.info("Popular paths")
-    repository = config["github"]["repository"]
-    return query("repos/{}/traffic/popular/paths".format(repository))
+    owner = config["github"]["owner"]
+    return query("repos/{}/{}/traffic/popular/paths".format(owner, repository))
 
 
-def views():
+def views(repository):
     log.info("Page views")
-    repository = config["github"]["repository"]
-    return query("repos/{}/traffic/views".format(repository))
+    owner = config["github"]["owner"]
+    return query("repos/{}/{}/traffic/views".format(owner, repository))
 
 
-def clones():
+def clones(repository):
     log.info("Clones")
-    repository = config["github"]["repository"]
-    return query("repos/{}/traffic/clones".format(repository))
+    owner = config["github"]["owner"]
+    return query("repos/{}/{}/traffic/clones".format(owner, repository))
 
 
 def main():
@@ -113,16 +113,19 @@ def main():
 
     today = datetime.date.today()
 
-    save(today, os.path.join(args.o, "referrers"), referrers())
-    save(today, os.path.join(args.o, "paths"), paths())
-    v = views()
-    save(today, os.path.join(args.o, "views"), v)
-    c = clones()
-    save(today, os.path.join(args.o, "clones"), c)
+    repositories = config["github"]["repository"].split(",")
+    for repository in repositories:
+        log.info("Fetching statistics from repo: %s" % repository)
+        save(today, os.path.join(args.o, repository, "referrers"), referrers(repository))
+        save(today, os.path.join(args.o, repository, "paths"), paths(repository))
+        v = views(repository)
+        save(today, os.path.join(args.o, repository, "views"), v)
+        c = clones(repository)
+        save(today, os.path.join(args.o, repository, "clones"), c)
 
     # For views + clones, split by month, fill in type_month.json, making sure not to duplicate
-    save_month(today, "views", os.path.join(args.o, "views"), v)
-    save_month(today, "clones", os.path.join(args.o, "clones"), c)
+    #save_month(today, "views", os.path.join(args.o, "views"), v)
+    #save_month(today, "clones", os.path.join(args.o, "clones"), c)
 
 if __name__ == "__main__":
     main()
