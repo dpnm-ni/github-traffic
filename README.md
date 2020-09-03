@@ -3,16 +3,13 @@
 Github reports traffic to a repository in the Insights/Graphs section of a repository.
 This includes the number of visits to the repository, the number of times it was
 cloned each day, popular pages, and referring sites.
-Number of visitors and number of clones is only reported for two weeks.
-This information is also available via the GitHub API.
+Number of visitors and number of clones is "only reported for two weeks".
+This information is also available via the GitHub API for long term archiving.
 
 ## Installation
 
-Install this project to a python environment using pip:
-
-    pip install git+https://github.com/MTG/github-traffic.git
-
-A script will be installed to `bin/github_get_traffic`
+    pip install python-dateutil
+    git clone https://github.com/dpnm-ni/github-traffic.git
 
 ## Configuration
 
@@ -29,7 +26,7 @@ for a public repository.
 
 Run the script, specifying the path to the config file and the output directory:
 
-    github_get_traffic -c gh_traffic/config.ini -o gh_traffic
+    cd github-traffic/github_traffic
+    python3 github_get_traffic.py -c config.ini -o {OUTPUT_DIR}
 
 This script can be run via cron once a week to keep a full record of historical data.
-
